@@ -1,0 +1,51 @@
+<html>
+    <head>
+            <title></title>
+            <!--SparkMD5的CDN链接-->
+            <script src="https://cdn.bootcdn.net/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
+    </head>
+    <body>
+            <input type="file" />  <!---上传文件按钮-->>
+            <script>
+                const inp = document.querySelector('input');
+                inp.onchange = (e) => {
+                    const file = inp.files[0];
+                    if(! file){
+                        return;
+                    }
+                    const  chunkResult = createChunks(file,100); //   得到切片结果
+                    hash(chunkResult);
+                    //console.log(chunkResult);  打印分片结果
+                    //const piece = file.slice(0,100);//取0到99字节
+                    //console.log(piece);显示为Blob类型数据
+                }
+                //hash函数,将文件转为唯一hash
+                function hash (chunkResult){
+                    const spark = new SparkMD5();   //创建实例
+                    function _read(i){
+                        if( i>=chunkResult.length ){
+                            console.log(spark.end())   //输出结果
+                            return;   //读取完成
+                        }
+                        const blob = chunkResult[i];
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            const bytes = e.target.result;    //读取到的字节数组
+                            spark.append(bytes);   //帮我们把一组字节，进行增量哈希计算
+                            _read(i+1);   //调用read，完成下一个分片增量运算
+                        }
+                        reader.readAsArrayBuffer(blob); 
+                    }
+                _read(0)
+                }
+                //切片处理函数
+                function createChunks(file,chunkSize){
+                    const result = [];   //获取每一个切片
+                    for (let i = 0;i < file.size; i += chunkSize ){
+                        result.push(file.slice(i,i + chunkSize));   //把每次的切片结果，放到数组里
+                    }
+                    return result; 
+                }
+            </script>
+    </body>
+</html>
