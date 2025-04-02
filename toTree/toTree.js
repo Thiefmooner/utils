@@ -9,20 +9,21 @@ function arrToTree(data) {
     const newArr = []
     const map = {}
     data.forEach(ele => {
-        // 如果ele没有子级，就创建[]
+        // 如果ele没有子级，就创建[]，对每个ele，保证都有children数组
         if (!ele.children) {
             ele.children = []
         }
-        // ele有子级，就把id和对象用map对应起来
+        // 每个ele都会有id，就把id和对象用map一一对应起来
         map[ele.id] = ele
     });
     data.forEach(ele => {
-        // 如果ele是顶级节点，直接添加到根节点数组
+        // 先处理顶级节点的ele，直接添加到根节点数组
         if (ele.pid === 0) {
             newArr.push(ele)
         }
+        // 然后再处理下一级ele
         else {
-            // 如果ele的父级存在，就把ele加到父级的children数组里
+            // 如果ele的父级map对象存在，就把ele加到父级的children数组里
             if (map[ele.pid]) {
                 map[ele.pid].children.push(ele)
             } else {
